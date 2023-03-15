@@ -1,6 +1,6 @@
 # Add-Free-Youtube-Server
 
-<h3>Nowadays Youtube become Bloat . Ads , useless features and bloat animation . <br>
+<h3>Nowadays Youtube has become full of Ads , useless features and bloat animation . <br>
 This youtube server is simple , fast and customizable ! 
 
 ### Installation
