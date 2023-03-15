@@ -5,8 +5,11 @@ This youtube server is simple , fast and customizable !
 
 ### Installation
 
-`pip install -r requirements.txt`
+`pip install -r requirements.txt` <br>
 `pip install -r requirements-dev.txt`
+
+
+## Uploading soon !
 
 
 
