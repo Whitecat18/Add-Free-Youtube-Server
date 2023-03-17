@@ -19,8 +19,9 @@ This youtube server is simple , fast and customizable !
 
 Then install your requirements
 
+## Pakages Edited and Managed my Smukx
 
-## Uploading soon !
+
 
 
 
