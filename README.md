@@ -18,11 +18,18 @@ Then install your requirements
 `pip install -r requirements.txt` <br>
 `pip install -r requirements-dev.txt`
 
+### To run 
+`python server.py`
 
 
 
 
 ## Features ;~
+Tor is Enabled Here !<br>
+No Random content
+
+
+## Screenshots
 
 
 ## Pakages Edited and Managed my Smukx [ Not Completed Fully ] 
