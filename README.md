@@ -6,8 +6,11 @@
 <h3>Nowadays Youtube has become full of Ads , useless features and bloat animation . <br>
 This youtube server is simple , fast and customizable ! 
 
+### Installation
+ 
+    git clone https://github.com/Whitecat18/Add-Free-Youtube-Server.git
 
-### Run it in Virtual Enviroinment using python
+<h4> Run it in Virtual Enviroinment using python </h4>
 
 `virtualenv env` <br>
 `source env/bin/activate`
