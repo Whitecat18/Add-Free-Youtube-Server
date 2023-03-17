@@ -6,11 +6,6 @@
 <h3>Nowadays Youtube has become full of Ads , useless features and bloat animation . <br>
 This youtube server is simple , fast and customizable ! 
 
-### Installation
-
-`pip install -r requirements.txt` <br>
-`pip install -r requirements-dev.txt`
-
 
 ### Run it in Virtual Enviroinment using python
 
@@ -18,6 +13,14 @@ This youtube server is simple , fast and customizable !
 `source env/bin/activate`
 
 Then install your requirements
+### Installation
+
+`pip install -r requirements.txt` <br>
+`pip install -r requirements-dev.txt`
+
+
+
+
 
 ## Features ;~
 
