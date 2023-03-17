@@ -25,7 +25,7 @@ Then install your requirements
 ## Features ;~
 
 
-## Pakages Edited and Managed my Smukx
+## Pakages Edited and Managed my Smukx [ Not Completed Fully ] 
 
 
 
