@@ -26,6 +26,8 @@ Then install your requirements
 
 ## Features ;~
 Tor is Enabled Here !<br>
+can export json file avaiable in youtube<br>
+No login required<br>
 No Random content
 
 
