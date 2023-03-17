@@ -1,0 +1,13 @@
+{% set page_title = title %}
+{% extends "base.html" %}
+{% block style %}
+    <link href="/youtube.com/static/home.css" rel="stylesheet">
+       {% endblock style %}
+{% block main %}
+    <ul>
+        <li><a href="/youtube.com/playlists">Local playlists</a></li>
+        <li><a href="/youtube.com/subscriptions">Subscriptions</a></li>
+        <li><a href="/youtube.com/subscription_manager">Subscription Manager</a></li>
+        <li><a href="/youtube.com/settings">Settings</a></li>
+    </ul>
+{% endblock main %}

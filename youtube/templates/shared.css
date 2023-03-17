@@ -1,0 +1,5 @@
+html {
+    font-family: {{ font_family }};
+    background: var(--background);
+    color: var(--text);
+}

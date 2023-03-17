@@ -1,0 +1,47 @@
+{% set page_title = 'Settings' %}
+{% extends "base.html" %}
+{% block style %}
+    <link href="/youtube.com/static/settings.css" rel="stylesheet">
+{% endblock style %}
+
+{% block main %}
+    <form method="POST" class="settings-form">
+        {% for categ in categories %}
+            <h2>{{ categ|capitalize }}</h2>
+            <ul class="settings-list">
+                {% for setting_name, setting_info, value in settings_by_category[categ] %}
+                    {% if not setting_info.get('hidden', false) %}
+                        <li class="setting-item">
+                            {% if 'label' is in(setting_info) %}
+                                <label for="{{ 'setting_' + setting_name }}" {% if 'comment' is in(setting_info) %}title="{{ setting_info['comment'] }}" {% endif %}>{{ setting_info['label'] }}</label>
+                            {% else %}
+                                <label for="{{ 'setting_' + setting_name }}" {% if 'comment' is in(setting_info) %}title="{{ setting_info['comment'] }}" {% endif %}>{{ setting_name.replace('_', ' ')|capitalize }}</label>
+                            {% endif %}
+
+                            {% if setting_info['type'].__name__ == 'bool' %}
+                                <input type="checkbox" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" {{ 'checked' if value else '' }}>
+                            {% elif setting_info['type'].__name__ == 'int' %}
+                                {% if 'options' is in(setting_info) %}
+                                    <select id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}">
+                                        {% for option in setting_info['options'] %}
+                                            <option value="{{ option[0] }}" {{ 'selected' if option[0] == value else '' }}>{{ option[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    <input type="number" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}" step="1">
+                                {% endif %}
+                            {% elif setting_info['type'].__name__ == 'float' %}
+
+                            {% elif setting_info['type'].__name__ == 'str' %}
+                                <input type="text" id="{{ 'setting_' + setting_name }}" name="{{ setting_name }}" value="{{ value }}">
+                            {% else %}
+                                <span>Error: Unknown setting type: setting_info['type'].__name__</span>
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        <input type="submit" value="Save settings">
+    </form>
+{% endblock main %}

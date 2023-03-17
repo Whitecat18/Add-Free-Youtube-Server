@@ -1,0 +1,32 @@
+{% set page_title = 'Error' %}
+
+{% if not slim %}
+    {% extends "base.html" %}
+{% endif %}
+
+{% if traceback %}
+    {% block style %}
+        <link href="/youtube.com/static/home.css" rel="stylesheet">
+    {% endblock style %}
+{% endif %}
+
+{% block main %}
+    {% if traceback %}
+        <div class="code-error" id="error-box">
+            <h1>500 Uncaught exception:</h1>
+            <div class="code-box"><code>{{ traceback }}</code></div>
+            <p>Please report this issue at <a href="https://todo.sr.ht/~heckyel/yt-local" target="_blank" rel="noopener noreferrer">https://todo.sr.ht/~heckyel/yt-local</a></p>
+            <p>Remember to include the traceback in your issue and redact any information in it you do not want to share</p>
+        </div>
+    {% else %}
+        <section id="error-message" class="comments-area">
+            <div class="comments">
+                <div class="comment-container">
+                    <div class="comment">
+                        <span class="comment-text">{{ error_message }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,176 @@
+{% if settings.app_public %}
+    {% set app_url = settings.app_url|string %}
+{% else %}
+    {% set app_url = settings.app_url|string + ':' + settings.port_number|string %}
+{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; media-src 'self' blob: {{ app_url }}/* data: https://*.googlevideo.com;  {{ "img-src 'self' https://*.googleusercontent.com https://*.ggpht.com https://*.ytimg.com;" if not settings.proxy_images else "" }}">
+        <title>{{ page_title }}</title>
+        <link title="YT Local" href="/youtube.com/opensearch.xml" rel="search" type="application/opensearchdescription+xml">
+        <link href="/youtube.com/static/favicon.ico" type="image/x-icon" rel="icon">
+        <link href="/youtube.com/static/normalize.css" rel="stylesheet">
+        <link href="{{ theme_path }}" rel="stylesheet">
+        <link href="/youtube.com/shared.css" rel="stylesheet">
+        {% block style %}
+            {{ style }}
+        {% endblock %}
+
+        {% if js_data %}
+            <script>
+             // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
+             data = {{ js_data|tojson }};
+             // @license-end
+            </script>
+        {% endif %}
+    </head>
+
+    <body>
+        <header class="header">
+            <nav class="home">
+		    <a href="/youtube.com" id="home-link"><h1>SMUKX YOUTUBE</h1></a>
+            </nav>
+            <form class="form" id="site-search" action="/youtube.com/results">
+                <input type="search" name="search_query" class="search-box" value="{{ search_box_value }}"
+                       {{ "autofocus" if (request.path in ("/", "/results") or error_message) else "" }} required placeholder="Type to search...">
+                <button type="submit" value="Search" class="search-button">Search</button>
+                <!-- options -->
+                <div class="dropdown">
+                    <!-- hidden box -->
+                    <input id="options-toggle-cbox" class="opt-box" type="checkbox">
+                    <!-- end hidden box -->
+                    <label class="dropdown-label" for="options-toggle-cbox">Options</label>
+                    <div class="dropdown-content">
+                        <h3>Sort by</h3>
+                        <div class="option">
+                            <input type="radio" id="sort_relevance" name="sort" value="0">
+                            <label for="sort_relevance">Relevance</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="sort_upload_date" name="sort" value="2">
+                            <label for="sort_upload_date">Upload date</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="sort_view_count" name="sort" value="3">
+                            <label for="sort_view_count">View count</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="sort_rating" name="sort" value="1">
+                            <label for="sort_rating">Rating</label>
+                        </div>
+
+                        <h3>Upload date</h3>
+                        <div class="option">
+                            <input type="radio" id="time_any" name="time" value="0">
+                            <label for="time_any">Any</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="time_last_hour" name="time" value="1">
+                            <label for="time_last_hour">Last hour</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="time_today" name="time" value="2">
+                            <label for="time_today">Today</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="time_this_week" name="time" value="3">
+                            <label for="time_this_week">This week</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="time_this_month" name="time" value="4">
+                            <label for="time_this_month">This month</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="time_this_year" name="time" value="5">
+                            <label for="time_this_year">This year</label>
+                        </div>
+
+                        <h3>Type</h3>
+                        <div class="option">
+                            <input type="radio" id="type_any" name="type" value="0">
+                            <label for="type_any">Any</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="type_video" name="type" value="1">
+                            <label for="type_video">Video</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="type_channel" name="type" value="2">
+                            <label for="type_channel">Channel</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="type_playlist" name="type" value="3">
+                            <label for="type_playlist">Playlist</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="type_movie" name="type" value="4">
+                            <label for="type_movie">Movie</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="type_show" name="type" value="5">
+                            <label for="type_show">Show</label>
+                        </div>
+
+                        <h3>Duration</h3>
+                        <div class="option">
+                            <input type="radio" id="duration_any" name="duration" value="0">
+                            <label for="duration_any">Any</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="duration_short" name="duration" value="1">
+                            <label for="duration_short">Short (&lt; 4 minutes)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="duration_long" name="duration" value="2">
+                            <label for="duration_long">Long (&gt; 20 minutes)</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {% if header_playlist_names is defined %}
+                <form class="playlist" id="playlist-edit" action="/youtube.com/edit_playlist" method="post" target="_self">
+                    <input class="play-box" name="playlist_name" id="playlist-name-selection" list="playlist-options" type="search" placeholder="Add name of your playlist...">
+                    <datalist class="play-hidden" id="playlist-options">
+                        {% for playlist_name in header_playlist_names %}
+                            <option value="{{ playlist_name }}">{{ playlist_name }}</option>
+                        {% endfor %}
+                    </datalist>
+                    <button class="play-add" type="submit" id="playlist-add-button" name="action" value="add">+List</button>
+                    <div class="play-clean">
+                        <button type="reset" id="item-selection-reset">Clear</button>
+                    </div>
+                </form>
+                <script src="/youtube.com/static/js/playlistadd.js"></script>
+            {% endif %}
+
+        </header>
+        <main class="main">
+
+            {% block main %}
+                {{ main }}
+            {% endblock %}
+
+        </main>
+        <footer class="footer">
+            <div>
+                <a href="https://github.com/Whitecat18/Add-Free-Youtube-Server"
+                   rel="noopener noreferrer" target="_blank">
+                    Released under the AGPLv3 or later
+                </a>
+            </div>
+            <div>
+                <p>This site is Free/Libre Software</p>
+                
+		    
+            </div>
+            <div>
+                <a href="/youtube.com/licenses" data-jslicense="1" rel="noopener noreferrer" target="_blank">JavaScript licenses</a>
+            </div>
+        </footer>
+    </body>
+
+</html>

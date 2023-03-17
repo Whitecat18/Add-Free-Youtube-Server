@@ -1,0 +1,41 @@
+{% set page_title = title|string + ' - Page ' + parameters_dictionary.get('page', '1') %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block style %}
+    <link href="/youtube.com/static/message_box.css" rel="stylesheet">
+    <link href="/youtube.com/static/playlist.css" rel="stylesheet">
+{% endblock style %}
+
+{% block main %}
+
+    <div class="playlist-metadata">
+        <div class="author">
+            <img alt="{{ title }}" src="{{ thumbnail }}">
+            <h2>{{ title }}</h2>
+        </div>
+        <div class="summary">
+            <a class="playlist-author" href="{{ author_url }}">{{ author }}</a>
+        </div>
+        <div class="playlist-stats">
+            <div>{{ video_count|commatize }} videos</div>
+            <div>{{ view_count|commatize }} views</div>
+            <div>Last updated {{ time_published }}</div>
+        </div>
+    </div>
+    <hr/>
+
+
+    <div id="results" class="video-container">
+        {% for info in video_list %}
+            {{ common_elements.item(info) }}
+        {% endfor %}
+    </div>
+    <hr/>
+
+    <footer class="pagination-container">
+        <nav class="pagination-list">
+            {{ common_elements.page_buttons(num_pages, '/https://www.youtube.com/playlist', parameters_dictionary) }}
+        </nav>
+    </footer>
+
+{% endblock main %}

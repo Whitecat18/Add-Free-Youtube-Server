@@ -1,0 +1,265 @@
+{% set page_title = title %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% import "comments.html" as comments with context %}
+{% block style %}
+    <link href="/youtube.com/static/message_box.css" rel="stylesheet">
+    <link href="/youtube.com/static/watch.css" rel="stylesheet">
+    {% if settings.use_video_player == 2 %}
+        <!-- plyr -->
+        <link href="/youtube.com/static/modules/plyr/plyr.css" rel="stylesheet">
+        <!--/ plyr -->
+        <style>
+         /* Prevent this div from blocking right-click menu for video
+         e.g. Firefox playback speed options */
+         .plyr__poster {
+             display: none !important;
+         }
+        </style>
+    {% endif %}
+{% endblock style %}
+
+{% block main %}
+    {% if playability_error %}
+        <div class="playability-error">
+            <span>{{ 'Error: ' + playability_error }}
+                {% if invidious_reload_button %}
+                    <a href="{{ video_url }}&use_invidious=0"><br>
+                        Reload without invidious (for usage of new identity button).</a>
+                {% endif %}
+            </span>
+        </div>
+    {% elif (uni_sources.__len__() == 0 or live) and hls_formats.__len__() != 0 %}
+        <div class="live-url-choices">
+            <span>Copy a url into your video player:</span>
+            <ol>
+                {% for fmt in hls_formats %}
+                    <li class="url-choice"><div class="url-choice-label">{{ fmt['video_quality'] }}: </div><input class="url-choice-copy" value="{{ fmt['url'] }}" readonly onclick="this.select();"></li>
+                {% endfor %}
+            </ol>
+        </div>
+    {% else %}
+        <figure class="sc-video">
+            <video id="js-video-player" playsinline controls>
+                {% if uni_sources %}
+                    <source src="{{ uni_sources[uni_idx]['url'] }}" type="{{ uni_sources[uni_idx]['type'] }}" data-res="{{ uni_sources[uni_idx]['quality'] }}">
+                {% endif %}
+
+                {% for source in subtitle_sources %}
+                    {% if source['on'] %}
+                        <track label="{{ source['label'] }}" src="{{ source['url'] }}" kind="subtitles" srclang="{{ source['srclang'] }}" default>
+                    {% else %}
+                        <track label="{{ source['label'] }}" src="{{ source['url'] }}" kind="subtitles" srclang="{{ source['srclang'] }}">
+                    {% endif %}
+                {% endfor %}
+            </video>
+        </figure>
+    {% endif %}
+
+    <div class="sc-info">
+        <div class="video-info">
+            <h1 class="v-title">{{ title }}</h1>
+
+            <ul class="labels">
+                {%- if unlisted -%}
+                    <li class="is-unlisted">Unlisted</li>
+                {%- endif -%}
+                {%- if age_restricted -%}
+                    <li class="age-restricted">Age-restricted</li>
+                {%- endif -%}
+                {%- if limited_state -%}
+                    <li>Limited state</li>
+                {%- endif -%}
+                {%- if live -%}
+                    <li>Live</li>
+                {%- endif -%}
+            </ul>
+
+            <address class="v-uploaded">Uploaded by <a href="{{ uploader_channel_url }}">{{ uploader }}</a></address>
+            <span class="v-views">{{ view_count }} views</span>
+            <time class="v-published" datetime="{{ time_published_utc }}">Published on {{ time_published }}</time>
+            <span class="v-likes-dislikes">{{ like_count }} likes</span>
+
+            <div class="external-player-controls">
+                <input class="speed" id="speed-control" type="text" title="Video speed">
+                {% if settings.use_video_player != 2 %}
+                    <select id="quality-select" autocomplete="off">
+                        {% for src in uni_sources %}
+                            <option value='{"type": "uni", "index": {{ loop.index0 }}}' {{ 'selected' if loop.index0 == uni_idx and not using_pair_sources else '' }} >{{ src['quality_string'] }}</option>
+                        {% endfor %}
+                        {% for src_pair in pair_sources %}
+                            <option value='{"type": "pair", "index": {{ loop.index0}}}' {{ 'selected' if loop.index0 == pair_idx and using_pair_sources else '' }} >{{ src_pair['quality_string'] }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+            <input class="v-checkbox" name="video_info_list" value="{{ video_info }}" form="playlist-edit" type="checkbox">
+
+            <span class="v-direct-link"><a href="https://youtu.be/{{ video_id }}" rel="noopener noreferrer" target="_blank">Direct Link</a></span>
+
+            {% if settings.use_video_download != 0 %}
+            <details class="v-download">
+                <summary class="download-dropdown-label">Download</summary>
+                <ul class="download-dropdown-content">
+                    {% for format in download_formats %}
+                        <li class="download-format">
+                            <a class="download-link" href="{{ format['url'] }}" download="{{ title }}.{{ format['ext'] }}">
+                                {{ format['ext'] }} {{ format['video_quality'] }} {{ format['audio_quality'] }} {{ format['file_size'] }} {{ format['codecs'] }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    {% for download in other_downloads %}
+                        <li class="download-format">
+                            <a href="{{ download['url'] }}" download>
+                                {{ download['ext'] }} {{ download['label'] }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </details>
+            {% else %}
+            <span class="v-download"></span>
+            {% endif %}
+            <span class="v-description">{{ common_elements.text_runs(description)|escape|urlize|timestamps|safe }}</span>
+
+            <div class="v-music-list">
+                {% if music_list.__len__() != 0 %}
+                    <hr>
+                    <table>
+                        <caption>Music</caption>
+                        <tr>
+                            {% for attribute in music_attributes %}
+                                <th>{{ attribute }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for track in music_list %}
+                            <tr>
+                                {% for attribute in music_attributes %}
+                                    <td>{{ track.get(attribute.lower(), '') }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
+            <details class="v-more-info">
+                <summary>More info</summary>
+                <div class="more-info-content">
+                    <p>Tor exit node:  {{ ip_address }}</p>
+                    {% if invidious_used %}
+                        <p>Used Invidious as fallback.</p>
+                    {% endif %}
+                    <p class="allowed-countries">Allowed countries: {{ allowed_countries|join(', ') }}</p>
+                    {% if settings.use_sponsorblock_js %}
+                        <ul class="more-actions">
+                            <li><label><input type=checkbox id=skip_sponsors checked>skip sponsors</label> <span id=skip_n></span>
+                        </ul>
+                    {% endif %}
+                </div>
+            </details>
+        </div>
+
+        <div class="side-videos">
+
+            <!-- playlist -->
+            {% if playlist %}
+                <div class="site-playlist">
+                    <div class="playlist-header">
+                        <a href="{{ playlist['url'] }}" title="{{ playlist['title'] }}"><h3>{{ playlist['title'] }}</h3></a>
+                        <ul class="playlist-metadata">
+                            <li><label for="playlist-autoplay-toggle">Autoplay: </label><input id="playlist-autoplay-toggle" type="checkbox" class="autoplay-toggle"></li>
+                            {% if playlist['current_index'] is none %}
+                                <li>[Error!]/{{ playlist['video_count'] }}</li>
+                            {% else %}
+                                <li>{{ playlist['current_index']+1 }}/{{ playlist['video_count'] }}</li>
+                            {% endif %}
+                            <li><a href="{{ playlist['author_url'] }}" title="{{ playlist['author'] }}">{{ playlist['author'] }}</a></li>
+                        </ul>
+                    </div>
+                    <nav class="playlist-videos">
+                        {% for info in playlist['items'] %}
+                            {# non-lazy load for 5 videos surrounding current video #}
+                            {# for non-js browsers or old such that IntersectionObserver doesn't work #}
+                            {# -10 is sentinel to not load anything if there's no current_index for some reason #}
+                            {% if (playlist.get('current_index', -10) - loop.index0)|abs is lt(5)  %}
+                                {{ common_elements.item(info, include_badges=false, lazy_load=false) }}
+                            {% else %}
+                                {{ common_elements.item(info, include_badges=false, lazy_load=true) }}
+                            {% endif %}
+                        {% endfor %}
+                    </nav>
+                </div>
+            {% elif settings.related_videos_mode != 0 %}
+                <div class="related-autoplay"><label for="related-autoplay-toggle">Autoplay: </label><input id="related-autoplay-toggle" type="checkbox" class="autoplay-toggle"></div>
+            {% endif %}
+
+            {% if subtitle_sources %}
+                <details id="transcript-details">
+                    <summary>Transcript</summary>
+                    <div id="transcript-div">
+                        <select id="select-tt">
+                            {% for source in subtitle_sources %}
+                                <option>{{ source['label'] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="transcript-use-table">Table view</label>
+                        <input id="transcript-use-table" type="checkbox">
+                        <table id="transcript-table"></table>
+                    </div>
+                </details>
+            {% endif %}
+
+
+            {% if settings.related_videos_mode != 0 %}
+                <details class="related-videos-outer" {{'open' if settings.related_videos_mode == 1 else ''}}>
+                    <summary>Related Videos</summary>
+                    <nav class="related-videos-inner">
+                        {% for info in related %}
+                            {{ common_elements.item(info, include_badges=false) }}
+                        {% endfor %}
+                    </nav>
+                </details>
+            {% endif %}
+
+        </div>
+
+        <!-- comments -->
+        {% if settings.comments_mode != 0 %}
+            {% if comments_disabled %}
+                <div class="comments-area-outer comments-disabled">Comments disabled</div>
+            {% else %}
+                <details class="comments-area-outer" {{'open' if settings.comments_mode == 1 else ''}}>
+                    <summary>{{ comment_count|commatize }} comment{{'s' if comment_count != 1 else ''}}</summary>
+                    <div class="comments-area-inner comments-area">
+                        {% if comments_info %}
+                            {{ comments.video_comments(comments_info) }}
+                        {% endif %}
+                    </div>
+                </details>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <script src="/youtube.com/static/js/av-merge.js"></script>
+    <script src="/youtube.com/static/js/watch.js"></script>
+    <script>
+     // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
+     let storyboard_url = {{ storyboard_url | tojson }};
+     // @license-end
+    </script>
+    <script src="/youtube.com/static/js/common.js"></script>
+    <script src="/youtube.com/static/js/transcript-table.js"></script>
+    {% if settings.use_video_player == 2 %}
+        <!-- plyr -->
+        <script src="/youtube.com/static/modules/plyr/plyr.min.js"
+                integrity="sha512-l6ZzdXpfMHRfifqaR79wbYCEWjLDMI9DnROvb+oLkKq6d7MGroGpMbI7HFpicvmAH/2aQO+vJhewq8rhysrImw=="
+                crossorigin="anonymous"></script>
+        <script src="/youtube.com/static/js/plyr-start.js"></script>
+        <!-- /plyr -->
+    {% elif settings.use_video_player == 1 %}
+        <script src="/youtube.com/static/js/hotkeys.js"></script>
+    {% endif %}
+    {% if settings.use_comments_js %} <script src="/youtube.com/static/js/comments.js"></script> {% endif %}
+    {% if settings.use_sponsorblock_js %} <script src="/youtube.com/static/js/sponsorblock.js"></script> {% endif %}
+{% endblock main %}

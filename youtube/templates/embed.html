@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; media-src 'self' https://*.googlevideo.com; {{ "img-src 'self' https://*.googleusercontent.com https://*.ggpht.com https://*.ytimg.com;" if not settings.proxy_images else "" }}">
+        <title>{{ title }}</title>
+        <link href="/youtube.com/static/favicon.ico" type="image/x-icon" rel="icon">
+        {% if settings.use_video_player == 2 %}
+            <!-- plyr -->
+            <link href="/youtube.com/static/modules/plyr/plyr.css" rel="stylesheet">
+            <!--/ plyr -->
+        {% endif %}
+        <style>
+         body {
+             margin: 0rem;
+             padding: 0rem;
+         }
+         video {
+             width: 100%;
+             height: auto;
+         }
+         /* Prevent this div from blocking right-click menu for video
+            e.g. Firefox playback speed options */
+         .plyr__poster {
+             display: none !important;
+         }
+        </style>
+        {% if js_data %}
+            <script>
+             // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
+             data = {{ js_data|tojson }};
+             // @license-end
+            </script>
+        {% endif %}
+    </head>
+    <body>
+        <video id="js-video-player" controls autofocus onmouseleave="{{ title }}"
+               oncontextmenu="{{ title }}" onmouseenter="{{ title }}" title="{{ title }}">
+            {% if uni_sources %}
+                <source src="{{ uni_sources[uni_idx]['url'] }}" type="{{ uni_sources[uni_idx]['type'] }}" data-res="{{ uni_sources[uni_idx]['quality'] }}">
+            {% endif %}
+            {% for source in subtitle_sources %}
+                {% if source['on'] %}
+                    <track label="{{ source['label'] }}" src="{{ source['url'] }}" kind="subtitles" srclang="{{ source['srclang'] }}" default>
+                {% else %}
+                    <track label="{{ source['label'] }}" src="{{ source['url'] }}" kind="subtitles" srclang="{{ source['srclang'] }}">
+                {% endif %}
+            {% endfor %}
+        </video>
+        {% if js_data %}
+            <script>
+             // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
+             data = {{ js_data|tojson }};
+             // @license-end
+            </script>
+        {% endif %}
+        <script>
+         // @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPL-v3-or-Later
+         let storyboard_url = {{ storyboard_url | tojson }};
+         // @license-end
+        </script>
+        {% if settings.use_video_player == 2 %}
+            <!-- plyr -->
+            <script src="/youtube.com/static/modules/plyr/plyr.min.js"
+                    integrity="sha512-l6ZzdXpfMHRfifqaR79wbYCEWjLDMI9DnROvb+oLkKq6d7MGroGpMbI7HFpicvmAH/2aQO+vJhewq8rhysrImw=="
+                    crossorigin="anonymous"></script>
+            <script src="/youtube.com/static/js/plyr-start.js"></script>
+            <!-- /plyr -->
+        {% elif settings.use_video_player == 1 %}
+            <script src="/youtube.com/static/js/hotkeys.js"></script>
+        {% endif %}
+    </body>
+</html>

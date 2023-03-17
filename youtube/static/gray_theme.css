@@ -1,0 +1,20 @@
+:root {
+    --background:            #2d3743;
+    --text:                  #FFFFFF;
+    --secondary-hover:       #73828c;
+    --secondary-focus:       rgba(115, 130, 140, 0.125);
+    --secondary-inverse:     #FFFFFF;
+    --primary-background:    #2d3743;
+    --secondary-background:  #102027;
+    --thumb-background:      #35404D;
+    --link:                  #22aaff;
+    --link-visited:          #7755ff;
+    --border-bg:             #FFFFFF;
+    --buttom:                #DCDCDC;
+    --buttom-text:           #415462;
+    --button-border:         #91918c;
+    --buttom-hover:          #BBBBBB;
+    --search-text:           #FFFFFF;
+    --time-background:       #212121;
+    --time-text:             #FFFFFF;
+}

@@ -1,0 +1,65 @@
+{% import "common_elements.html" as common_elements %}
+
+{% macro render_comment(comment, include_avatar, timestamp_links=False) %}
+    <div class="comment-container">
+        <div class="comment">
+            <a class="author-avatar" href="{{ comment['author_url'] }}" title="{{ comment['author'] }}">
+                {% if include_avatar %}
+                    <img class="author-avatar-img" alt="{{ comment['author'] }}" src="{{ comment['author_avatar'] }}">
+                {% endif %}
+            </a>
+            <address class="author-name">
+                <a class="author" href="{{ comment['author_url'] }}" title="{{ comment['author'] }}">{{ comment['author'] }}</a>
+            </address>
+            <a class="permalink" href="{{ comment['permalink'] }}" title="permalink">
+                <span>{{ comment['time_published'] }}</span>
+            </a>
+
+            {% if timestamp_links %}
+                <span class="comment-text">{{ common_elements.text_runs(comment['text'])|timestamps|safe }}</span>
+            {% else %}
+                <span class="comment-text">{{ common_elements.text_runs(comment['text']) }}</span>
+            {% endif %}
+
+            <span class="comment-likes">{{ comment['likes_text'] if comment['approx_like_count'] else ''}}</span>
+            <div class="button-row">
+                {% if comment['reply_count'] %}
+                    {% if settings.use_comments_js and comment['replies_url'] %}
+                        <details class="replies" data-src="{{ comment['replies_url'] }}">
+                            <summary>{{ comment['view_replies_text'] }}</summary>
+                            <a href="{{ comment['replies_url'] }}" class="replies-open-new-tab" target="_blank">Open in new tab</a>
+                            <div class="comment_page">loading...</div>
+                        </details>
+                    {% elif comment['replies_url'] %}
+                        <a href="{{ comment['replies_url'] }}" class="replies">{{ comment['view_replies_text'] }}</a>
+                    {% else %}
+                        <a class="replies">{{ comment['view_replies_text'] }} (error constructing url)</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro video_comments(comments_info) %}
+    <div class="comment-links">
+        {% for link_text, link_url in comments_info['comment_links'] %}
+            <a class="sort-button" href="{{ link_url }}">{{ link_text }}</a>
+        {% endfor %}
+    </div>
+    {% if comments_info['error'] %}
+        <div class="comments">
+            <div class="code-box"><code>{{ comments_info['error'] }}</code></div>
+        </div>
+    {% else %}
+        <div class="comments">
+            {% for comment in comments_info['comments'] %}
+                {{ render_comment(comment, comments_info['include_avatars'], True) }}
+            {% endfor %}
+        </div>
+        {% if 'more_comments_url' is in comments_info %}
+            <a class="page-button more-comments" href="{{ comments_info['more_comments_url'] }}">More comments</a>
+        {% endif %}
+    {% endif %}
+
+{% endmacro %}

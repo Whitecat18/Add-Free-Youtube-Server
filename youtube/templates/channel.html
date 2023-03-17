@@ -1,0 +1,130 @@
+{% if current_tab == 'search' %}
+    {% set page_title = search_box_value + ' - Page ' + page_number|string %}
+{% else %}
+    {% set page_title = channel_name + ' - Channel' %}
+{% endif %}
+
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block style %}
+    <link href="/youtube.com/static/message_box.css" rel="stylesheet">
+    <link href="/youtube.com/static/channel.css" rel="stylesheet">
+{% endblock style %}
+
+{% block main %}
+
+    <div class="author-container">
+        <div class="author">
+            <img alt="{{ channel_name }}" src="{{ avatar }}">
+            <h2>{{ channel_name }}</h2>
+        </div>
+        <div class="summary">
+            <p>{{ short_description }}</p>
+        </div>
+        <div class="subscribe">
+            <form method="POST" action="/youtube.com/subscriptions" class="subscribe-unsubscribe">
+                <input class="btn-subscribe" type="submit" value="{{ 'Unsubscribe' if subscribed else 'Subscribe' }}">
+                <input type="hidden" name="channel_id" value="{{ channel_id }}">
+                <input type="hidden" name="channel_name" value="{{ channel_name }}">
+                <input type="hidden" name="action" value="{{ 'unsubscribe' if subscribed else 'subscribe' }}">
+            </form>
+        </div>
+    </div>
+    <hr/>
+
+    <nav class="channel-tabs">
+        {% for tab_name in ('Videos', 'Playlists', 'About') %}
+            {% if tab_name.lower() == current_tab %}
+                <a class="tab page-button">{{ tab_name }}</a>
+            {% else %}
+                <a class="tab page-button" href="{{ channel_url + '/' + tab_name.lower() }}">{{ tab_name }}</a>
+            {% endif %}
+        {% endfor %}
+
+        <form class="channel-search" action="{{ channel_url + '/search' }}">
+            <input type="search" name="query" class="search-box" value="{{ search_box_value }}">
+            <button type="submit" value="Search" class="search-button">Search</button>
+        </form>
+    </nav>
+    {% if current_tab == 'about' %}
+        <div class="channel-info">
+            <ul>
+                {% for (before_text, stat, after_text) in [
+                    ('Joined ', date_joined, ''),
+                    ('', view_count|commatize, ' views'),
+                    ('', approx_subscriber_count, ' subscribers'),
+                ] %}
+                    {% if stat %}
+                        <li>{{ before_text + stat|string + after_text }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <hr>
+            <h3>Description</h3>
+            <div class="description">{{ common_elements.text_runs(description) }}</div>
+            <hr>
+            <ul>
+                {% for text, url in links %}
+                    <li><a href="{{ url }}">{{ text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+
+        <!-- new-->
+        <div id="links-metadata">
+                {% if current_tab == 'videos' %}
+                    {% set sorts = [('1', 'views'), ('2', 'oldest'), ('3', 'newest')] %}
+                    <div id="number-of-results">{{ number_of_videos }} videos</div>
+                {% elif current_tab == 'playlists' %}
+                    {% set sorts = [('2', 'oldest'), ('3', 'newest'), ('4', 'last video added')] %}
+                    {% if items %}
+                        <h2 class="page-number">Page {{ page_number }}</h2>
+                    {% else %}
+                        <h2 class="page-number">No items</h2>
+                    {% endif %}
+                {% elif current_tab == 'search' %}
+                    {% if items %}
+                        <h2 class="page-number">Page {{ page_number }}</h2>
+                    {% else %}
+                        <h2 class="page-number">No results</h2>
+                    {% endif %}
+                {% else %}
+                    {% set sorts = [] %}
+                {% endif %}
+
+                {% for sort_number, sort_name in sorts %}
+                    {% if sort_number == current_sort.__str__() %}
+                        <a class="sort-button">{{ 'Sorted by ' + sort_name }}</a>
+                    {% else %}
+                        <a class="sort-button" href="{{ channel_url + '/' + current_tab + '?sort=' + sort_number }}">{{ 'Sort by ' + sort_name }}</a>
+                    {% endif %}
+                {% endfor %}
+        </div>
+
+        <div class="video-container {{ current_tab + '-content'}}">
+                {% for item_info in items %}
+                    {{ common_elements.item(item_info, include_author=false) }}
+                {% endfor %}
+        </div>
+        <hr/>
+
+        <footer class="pagination-container">
+            {% if current_tab == 'videos' and current_sort.__str__() == '2' %}
+                <nav class="next-previous-button-row">
+                    {{ common_elements.next_previous_ctoken_buttons(None, ctoken, channel_url + '/' + current_tab, parameters_dictionary) }}
+                </nav>
+            {% elif current_tab == 'videos' %}
+                <nav class="pagination-list">
+                    {{ common_elements.page_buttons(number_of_pages, channel_url + '/' + current_tab, parameters_dictionary, include_ends=(current_sort.__str__() == '3')) }}
+                </nav>
+            {% elif current_tab == 'playlists' or current_tab == 'search' %}
+                <nav class="next-previous-button-row">
+                    {{ common_elements.next_previous_buttons(is_last_page, channel_url + '/' + current_tab, parameters_dictionary) }}
+                </nav>
+            {% endif %}
+        </footer>
+        <!-- /new-->
+    {% endif %}
+
+{% endblock main %}

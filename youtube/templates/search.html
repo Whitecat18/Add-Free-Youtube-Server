@@ -1,0 +1,34 @@
+{% set search_box_value = query %}
+{% set page_title = query + ' - Search' %}
+{% extends "base.html" %}
+{% import "common_elements.html" as common_elements %}
+{% block style %}
+    <link href="/youtube.com/static/message_box.css" rel="stylesheet">
+    <link href="/youtube.com/static/search.css" rel="stylesheet">
+{% endblock style %}
+
+{% block main %}
+    <div class="result-info" id="result-info">
+        <div id="number-of-results">Approximately {{ '{:,}'.format(estimated_results) }} results ({{ '{:,}'.format(estimated_pages) }} pages)</div>
+        {% if corrections['type'] == 'showing_results_for' %}
+            <div>Showing results for <a>{{ common_elements.text_runs(corrections['corrected_query_text']) }}</a></div>
+            <div>Search instead for <a href="{{ corrections['original_query_url'] }}">{{ corrections['original_query_text'] }}</a></div>
+        {% elif corrections['type'] == 'did_you_mean' %}
+            <div>Did you mean <a href="{{ corrections['corrected_query_url'] }}">{{ common_elements.text_runs(corrections['corrected_query_text']) }}</a></div>
+        {% endif %}
+    </div>
+
+    <!-- video item -->
+    <div class="video-container">
+        {% for info in results %}
+            {{ common_elements.item(info, description=true) }}
+        {% endfor %}
+    </div>
+    <hr/>
+    <!-- /video item -->
+    <footer class="pagination-container">
+        <nav class="pagination-list">
+            {{ common_elements.page_buttons(estimated_pages, '/https://www.youtube.com/results', parameters_dictionary) }}
+        </nav>
+    </footer>
+{% endblock main %}
