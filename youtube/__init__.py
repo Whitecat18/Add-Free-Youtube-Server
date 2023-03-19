@@ -19,7 +19,7 @@ yt_app.add_url_rule('/settings', 'settings_page', settings.settings_page, method
 
 @yt_app.route('/')
 def homepage():
-    return flask.render_template('home.html', title="YT Local")
+    return flask.render_template('home.html', title="Smukx YT")
 
 
 @yt_app.route('/licenses')
